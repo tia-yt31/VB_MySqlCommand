@@ -71,11 +71,63 @@ Module Module1
             conn.Close()
         End Using
         Console.WriteLine("InsertTest e --- ")
+
+    End Sub
+
+
+    Sub UpdateTest()
+        Console.WriteLine("UpdateTest s --- ")
+
+        Using conn As New MySqlConnection("Database=test;Data Source=localhost;User Id=root;Password=; sqlservermode=True;")
+            conn.Open()
+            Dim cmd As New MySqlCommand()
+            cmd.Connection = conn
+            cmd.CommandText = "Update `testtable1` SET `name` = 'taro' WHERE id = '1';"
+            cmd.ExecuteNonQuery()
+            conn.Close()
+        End Using
+        Console.WriteLine("UpdateTest e --- ")
+    End Sub
+
+
+    Sub UpdateTest1000()
+        Console.WriteLine("UpdateTest s --- ")
+
+        Using conn As New MySqlConnection("Database=test;Data Source=localhost;User Id=root;Password=; sqlservermode=True;")
+            conn.Open()
+
+            Dim cmd As New MySqlCommand()
+            cmd.Connection = conn
+            Dim sqr_cmd As String = "Update `testtable1` SET `name` = ELT(FIELD(id,"
+            Dim sqr_ids As String = ""
+            Dim sqr_names As String = ""
+
+
+            For i As Integer = 0 To 1000
+                If i > 0 Then
+                    sqr_ids &= "," & i.ToString()
+                    sqr_names &= "," & Chr(34) & "n" & i.ToString() & Chr(34)
+                Else
+                    sqr_ids &= i.ToString()
+                    sqr_names &= Chr(34) & "n" & i.ToString() & Chr(34)
+                End If
+
+            Next
+
+            sqr_cmd &= sqr_ids & ")," & sqr_names & ") WHERE id IN (" & sqr_ids & ")"
+            cmd.CommandText = sqr_cmd
+
+            cmd.ExecuteNonQuery()
+            conn.Close()
+        End Using
+        Console.WriteLine("UpdateTest e --- ")
     End Sub
 
     Sub Main()
         'InsertTest()
-        InsertTest1000()
+        'InsertTest1000()
+        'UpdateTest()
+        UpdateTest1000()
     End Sub
 
 End Module
