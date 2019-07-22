@@ -74,6 +74,33 @@ Module Module1
 
     End Sub
 
+    Sub InsertTest2_1000()
+        Console.WriteLine("InsertTest s --- ")
+
+        Using conn As New MySqlConnection("Database=test;Data Source=localhost;User Id=root;Password=; sqlservermode=True;")
+            conn.Open()
+            Dim cmd As New MySqlCommand()
+            cmd.Connection = conn
+
+            Dim commandValue As String = "VALUES"
+
+            For i As Integer = 0 To 1000
+                Dim type As Integer = i Mod 3
+                If i > 0 Then
+                    commandValue += ", ('" & i.ToString() & "', 'ro', " & type.ToString() & ")"
+                Else
+                    commandValue += "('" & i.ToString() & "', 'ro', " & type.ToString() & ")"
+                End If
+
+            Next
+            cmd.CommandText = "INSERT INTO `testtable2` (`id`, `name`, `type`) " & commandValue
+            cmd.ExecuteNonQuery()
+            conn.Close()
+        End Using
+        Console.WriteLine("InsertTest e --- ")
+
+    End Sub
+
 
     Sub UpdateTest()
         Console.WriteLine("UpdateTest s --- ")
@@ -83,6 +110,20 @@ Module Module1
             Dim cmd As New MySqlCommand()
             cmd.Connection = conn
             cmd.CommandText = "Update `testtable1` SET `name` = 'taro' WHERE id = '1';"
+            cmd.ExecuteNonQuery()
+            conn.Close()
+        End Using
+        Console.WriteLine("UpdateTest e --- ")
+    End Sub
+    Sub UpdateTest2()
+        Console.WriteLine("UpdateTest s --- ")
+
+        Using conn As New MySqlConnection("Database=test;Data Source=localhost;User Id=root;Password=; sqlservermode=True;")
+            conn.Open()
+            Dim cmd As New MySqlCommand()
+            cmd.Connection = conn
+            cmd.CommandText = "Update `testtable1` SET `name` = 'Balbatos' WHERE id = '1';"
+            cmd.CommandText &= "Update `testtable1` SET `name` = 'Roronoa' WHERE id = '2';"
             cmd.ExecuteNonQuery()
             conn.Close()
         End Using
@@ -123,11 +164,47 @@ Module Module1
         Console.WriteLine("UpdateTest e --- ")
     End Sub
 
+    Sub UpdateTest1000_t2()
+        Console.WriteLine("UpdateTest s --- ")
+
+        Using conn As New MySqlConnection("Database=test;Data Source=localhost;User Id=root;Password=; sqlservermode=True;")
+            conn.Open()
+
+            Dim cmd As New MySqlCommand()
+            cmd.Connection = conn
+            Dim sqr_cmd As String = "Update `testtable1` SET `name` = ELT(FIELD(id,"
+            Dim sqr_ids As String = ""
+            Dim sqr_names As String = ""
+
+
+            For i As Integer = 0 To 1000
+                If i > 0 Then
+                    sqr_ids &= "," & i.ToString()
+                    sqr_names &= "," & Chr(34) & "n" & i.ToString() & Chr(34)
+                Else
+                    sqr_ids &= i.ToString()
+                    sqr_names &= Chr(34) & "n" & i.ToString() & Chr(34)
+                End If
+
+            Next
+
+            sqr_cmd &= sqr_ids & ")," & sqr_names & ") WHERE id IN (" & sqr_ids & ")"
+            cmd.CommandText = sqr_cmd
+
+            cmd.ExecuteNonQuery()
+            conn.Close()
+        End Using
+        Console.WriteLine("UpdateTest e --- ")
+    End Sub
+
     Sub Main()
         'InsertTest()
         'InsertTest1000()
+        'InsertTest2_1000()
+        'UpdateTest2()
         'UpdateTest()
-        UpdateTest1000()
+        'UpdateTest1000()
+        UpdateTest1000_t2()
     End Sub
 
 End Module
